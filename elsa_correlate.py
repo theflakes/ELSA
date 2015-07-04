@@ -4,6 +4,7 @@
 
     Query ELSA to build daily report of possible suspicious correlated DST and SRC IPs
 
+    Uses external shell script elsa_query.sh to perform the ELSA searches
 
     INI file section configuration
     ===========================================
