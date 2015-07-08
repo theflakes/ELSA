@@ -111,6 +111,8 @@ do_search('class=BRO_NOTICE "-" (notice_type="DRC::Large_Outgoing_Tx" OR notice_
 do_search('class=BRO_NOTICE "-" (notice_type="DRC::Large_Outgoing_Tx" OR notice_type="DRC::Very_Large_Outgoing_Tx") groupby:dstip start:yesterday end:now', 'Large Upload', 'dstip')
 
 
+# time span to use for all searches
+time_span = 'start:%22' + yesterday + '%22 end:%22' + now + '%22'
 # track IPs we are correlating so we do not correlate them more than once
 IPs = []
 # store correations so we can later determine if we want to report on them
@@ -149,54 +151,55 @@ for line in lines:
     if IP[2] not in ignore_ips:
         # lets build our ELSA email search links depending on search the IP was found in
         if IP[2] != temp:
-            html += '<tr><td bgcolor="#B8B8B8" colspan="3"><a href="' + elsa_uri + 'groupby=program ' + IP[2] + '">' + IP[2] + '</a></td></tr>'
+            html += '<tr><td bgcolor="#B8B8B8" colspan="3"><b>' + IP[2] + '</b> - [<a href="' + elsa_uri + 'groupby=program ' + IP[2] + ' ' + time_span + '">groupby:program</a>] [<a href="' + elsa_uri + 'groupby=class ' + IP[2] + ' ' + time_span + '">groupby:class</a>]</td></tr>'
         if IP[0] == 'SSH over non-standard port' and IP[1] == 'srcip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_SSH %22-%22 -BRO_SSH.dstport=22 ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_SSH %22-%22 -BRO_SSH.dstport=22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'SSH over non-standard port' and IP[1] == 'dstip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_SSH %22-%22 -BRO_SSH.dstport=22 ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_SSH %22-%22 -BRO_SSH.dstport=22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Port 53 not DNS' and IP[1] == 'srcip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_CONN +BRO_CONN.dstport=53 -BRO_CONN.service=dns ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_CONN +BRO_CONN.dstport=53 -BRO_CONN.service=dns ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Port 53 not DNS' and IP[1] == 'dstip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_CONN +BRO_CONN.dstport=53 -BRO_CONN.service=dns ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_CONN +BRO_CONN.dstport=53 -BRO_CONN.service=dns ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Port 80 not HTTP' and IP[1] == 'srcip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_CONN +BRO_CONN.dstport=80 -BRO_CONN.service=http ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_CONN +BRO_CONN.dstport=80 -BRO_CONN.service=http ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Port 80 not HTTP' and IP[1] == 'dstip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_CONN +BRO_CONN.dstport=80 -BRO_CONN.service=http ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_CONN +BRO_CONN.dstport=80 -BRO_CONN.service=http ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Port 443 not HTTPS' and IP[1] == 'srcip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_CONN +BRO_CONN.dstport=443 -BRO_CONN.service=ssl ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_CONN +BRO_CONN.dstport=443 -BRO_CONN.service=ssl ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Port 443 not HTTPS' and IP[1] == 'dstip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_CONN +BRO_CONN.dstport=443 -BRO_CONN.service=ssl ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_CONN +BRO_CONN.dstport=443 -BRO_CONN.service=ssl ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Intel hits' and IP[1] == 'srcip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_INTEL %22intel%22 ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_INTEL %22intel%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Intel hits' and IP[1] == 'dstip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_INTEL %22intel%22 ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_INTEL %22intel%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'IP Tunnels' and IP[1] == 'srcip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_TUNNEL %22Tunnel%22 ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_TUNNEL %22Tunnel%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'IP Tunnels' and IP[1] == 'dstip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_TUNNEL %22Tunnel%22 ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_TUNNEL %22Tunnel%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'RADIUS remote IP' and IP[1] == 'remote_ip':
-            html += '<tr><td><a href="' + elsa_uri + 'class=BRO_RADIUS %22-%22 groupby:remote_ip -%22127.0.0.1%22 ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'class=BRO_RADIUS %22-%22 groupby:remote_ip -%22127.0.0.1%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Correlated alerts' and IP[1] == 'srcip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=sub_msg class=BRO_NOTICE %22-%22 notice_type=%22CrlALERTs::Correlated_Alerts%22 ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=sub_msg class=BRO_NOTICE %22-%22 notice_type=%22CrlALERTs::Correlated_Alerts%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'IDS Alerts' and IP[1] == 'srcip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=sig_msg class=SNORT %22-%22 ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=sig_msg class=SNORT %22-%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'IDS Alerts' and IP[1] == 'dstip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=sig_msg class=SNORT %22-%22 ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=sig_msg class=SNORT %22-%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'IRC' and IP[1] == 'srcip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_IRC %22-%22 ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_IRC %22-%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'IRC' and IP[1] == 'dstip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_IRC %22-%22 ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_IRC %22-%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Exploit Kit' and IP[1] == 'srcip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_NOTICE %22-%22 notice_type=%22ExploitKit::SuspiciousDownloads%22 ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_NOTICE %22-%22 notice_type=%22ExploitKit::SuspiciousDownloads%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Exploit Kit' and IP[1] == 'dstip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_NOTICE %22-%22 notice_type=%22ExploitKit::SuspiciousDownloads%22 ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_NOTICE %22-%22 notice_type=%22ExploitKit::SuspiciousDownloads%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Large Upload' and IP[1] == 'srcip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_NOTICE %22-%22 (notice_type=%22DRC::Large_Outgoing_Tx%22 OR notice_type=%22DRC::Very_Large_Outgoing_Tx%22) ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_NOTICE %22-%22 (notice_type=%22DRC::Large_Outgoing_Tx%22 OR notice_type=%22DRC::Very_Large_Outgoing_Tx%22) ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Large Upload' and IP[1] == 'dstip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_NOTICE %22-%22 (notice_type=%22DRC::Large_Outgoing_Tx%22 OR notice_type=%22DRC::Very_Large_Outgoing_Tx%22) ' + IP[2] + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_NOTICE %22-%22 (notice_type=%22DRC::Large_Outgoing_Tx%22 OR notice_type=%22DRC::Very_Large_Outgoing_Tx%22) ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         else:
             html += '<tr><td>' + IP[0] + '</td><td>' + IP[1] + '</td><td>' + IP[3] + '</td>'
     temp = IP[2]
+
 
 
 html += """\
@@ -219,3 +222,6 @@ s.ehlo()
 # and message to send - here it is sent as one string.
 s.sendmail(smtp_from, smtp_to.split(), msg.as_string())
 s.quit()
+
+# delete temp files
+os.remove(temp_json_results)
