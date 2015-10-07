@@ -110,8 +110,6 @@ do_search('class=BRO_IRC "-" groupby:srcip %s' % (time_span), 'IRC', 'srcip')
 do_search('class=BRO_IRC "-" groupby:dstip %s' % (time_span), 'IRC', 'dstip')
 do_search('class=BRO_NOTICE "-" notice_type="ExploitKit::SuspiciousDownloads" groupby:srcip %s' % (time_span), 'Exploit Kit', 'srcip')
 do_search('class=BRO_NOTICE "-" notice_type="ExploitKit::SuspiciousDownloads" groupby:dstip %s' % (time_span), 'Exploit Kit', 'dstip')
-do_search('class=BRO_NOTICE "-" (notice_type="DRC::Large_Outgoing_Tx" OR notice_type="DRC::Very_Large_Outgoing_Tx") groupby:srcip %s' % (time_span), 'Large Upload', 'srcip')
-do_search('class=BRO_NOTICE "-" (notice_type="DRC::Large_Outgoing_Tx" OR notice_type="DRC::Very_Large_Outgoing_Tx") groupby:dstip %s' % (time_span), 'Large Upload', 'dstip')
 
 
 # time span to use for all searches
