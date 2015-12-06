@@ -49,7 +49,7 @@ def do_search(search_str, search_name, group_by):
                 f.write("%s\t%s\t%s\t%d\n" %  (search_name, group_by, result['_groupby'], result['_count']))
 
 
-smtp_from = 'suspicious-ips@dresser-rand.com'
+smtp_from = 'suspicious-ips@company.com'
 # seperate multiple TO addresses with a space
 smtp_to = "analyst@company.com"
 # Create message container - the correct MIME type is multipart/alternative.
@@ -202,12 +202,12 @@ for line in lines:
     temp = IP[2]
 
 
-
 html += """\
   </table>
   </body>
 </html>
 """
+
 # Record the MIME types of both parts - text/plain and text/html.
 #part1 = MIMEText(text, 'plain')
 part2 = MIMEText(html, 'html')
