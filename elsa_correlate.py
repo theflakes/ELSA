@@ -4,7 +4,6 @@
 
     Query ELSA to build daily report of possible suspicious correlated DST and SRC IPs
 
-    Uses external shell script elsa_query.sh to perform the ELSA searches
 
     INI file section configuration
     ===========================================
@@ -22,23 +21,23 @@ from email.mime.text import MIMEText
 
 
 # number of searches an IP must be seen in in order to report on it
-searches_seen_in = 3
+searches_seen_in = 6
 # setup all of our date formats we need
 now = time.strftime("%Y-%m-%d %H:%M:00")
 temp = datetime.date.today()-datetime.timedelta(1)
 yesterday = temp.strftime("%Y-%m-%d %H:%M:00")
 file_append = time.strftime("%m%d%Y")
-elsa_uri = 'https://10.1.2.3:3154/?query_string='
-search_elsa = '/home/user/scripts/elsa_query.sh'
-temp_json_results = '/home/user/scripts/correlation/temp.json'
-search_results_fname = '/home/user/scripts/correlation/' + file_append + '.txt'
-correlated_fname = '/home/user/scripts/correlation/' + file_append + '-correlated.txt'
+elsa_uri = 'https://1.1.1.1/elsa-query/?query_string='
+search_elsa = '/home/user/elsa_query.sh'
+temp_json_results = '/home/user/correlation/temp.json'
+search_results_fname = '/home/user/correlation/' + file_append + '.txt'
+correlated_fname = '/home/user/correlation/' + file_append + '-correlated.txt'
 # IPs we do not want to correlate due to services they run that create high false positive rates
 ignore_ips = []
 
 
-# lets perform the ELSA query
 def do_search(search_str, search_name, group_by):
+    print search_str
     call([search_elsa, search_str, temp_json_results])
     with open(temp_json_results) as json_file:
         results = json.load(json_file)
@@ -50,8 +49,7 @@ def do_search(search_str, search_name, group_by):
 
 
 smtp_from = 'suspicious-ips@company.com'
-# seperate multiple TO addresses with a space
-smtp_to = "analyst@company.com"
+smtp_to = "user@comapany.com"
 # Create message container - the correct MIME type is multipart/alternative.
 msg = MIMEMultipart('alternative')
 msg['Subject'] = "Suspicious IPs"
@@ -86,37 +84,37 @@ html = """\
   <table bgcolor="#F5F5F0">
 """
 
-
-# inject timespan into ELSA query
 time_span = 'start:"' + yesterday + '" end:"' + now + '"'
-do_search('class=BRO_SSH "-" -BRO_SSH.dstport=22 groupby:srcip %s' % (time_span), 'SSH over non-standard port', 'srcip')
-do_search('class=BRO_SSH "-" -BRO_SSH.dstport=22 groupby:dstip %s' % (time_span), 'SSH over non-standard port', 'dstip')
-do_search('class="FIREWALL_ACCESS_DENY" groupby:srcip %s' % (time_span), 'Firewall Deny', 'srcip')
-do_search('class="FIREWALL_ACCESS_DENY" groupby:dstip %s' % (time_span), 'Firewall Deny', 'dstip')
-do_search('class=BRO_CONN +BRO_CONN.dstport=53 -BRO_CONN.service=dns groupby:srcip %s' % (time_span), 'Port 53 not DNS', 'srcip')
-do_search('class=BRO_CONN +BRO_CONN.dstport=53 -BRO_CONN.service=dns groupby:dstip %s' % (time_span), 'Port 53 not DNS', 'dstip')
-do_search('class=BRO_CONN +BRO_CONN.dstport=80 -BRO_CONN.service=http groupby:srcip %s' % (time_span), 'Port 80 not HTTP', 'srcip')
-do_search('class=BRO_CONN +BRO_CONN.dstport=80 -BRO_CONN.service=http groupby:dstip %s' % (time_span), 'Port 80 not HTTP', 'dstip')
-do_search('class=BRO_CONN +BRO_CONN.dstport=443 -BRO_CONN.service=ssl groupby:srcip %s' % (time_span), 'Port 443 not HTTPS', 'srcip')
-do_search('class=BRO_CONN +BRO_CONN.dstport=443 -BRO_CONN.service=ssl groupby:dstip %s' % (time_span), 'Port 443 not HTTPS', 'dstip')
-do_search('class=BRO_INTEL "intel" groupby:srcip %s' % (time_span), 'Intel hits', 'srcip')
-do_search('class=BRO_INTEL "intel" groupby:dstip %s' % (time_span), 'Intel hits', 'dstip')
-do_search('class=BRO_TUNNEL "Tunnel" groupby:srcip %s' % (time_span), 'IP Tunnels', 'srcip')
-do_search('class=BRO_TUNNEL "Tunnel" groupby:dstip #s' % (time_span), 'IP Tunnels', 'dstip')
-do_search('class=BRO_RADIUS "-" groupby:remote_ip -"127.0.0.1" %s' % (time_span), 'RADIUS remote IP', 'remote_ip')
-do_search('class=SNORT "-" groupby:srcip %s' % (time_span), 'IDS Alerts', 'srcip')
-do_search('class=SNORT "-" groupby:dstip %s' % (time_span), 'IDS Alerts', 'dstip')
-do_search('class=BRO_IRC "-" groupby:srcip %s' % (time_span), 'IRC', 'srcip')
-do_search('class=BRO_IRC "-" groupby:dstip %s' % (time_span), 'IRC', 'dstip')
-do_search('class=BRO_NOTICE "-" notice_type="ExploitKit::SuspiciousDownloads" groupby:srcip %s' % (time_span), 'Exploit Kit', 'srcip')
-do_search('class=BRO_NOTICE "-" notice_type="ExploitKit::SuspiciousDownloads" groupby:dstip %s' % (time_span), 'Exploit Kit', 'dstip')
+do_search('class=BRO_SSH -BRO_SSH.dstport=22 groupby:srcip %s nobatch:1 timeout:900' % (time_span), 'SSH over non-standard port', 'srcip')
+do_search('class=BRO_SSH -BRO_SSH.dstport=22 groupby:dstip %s nobatch:1 timeout:900' % (time_span), 'SSH over non-standard port', 'dstip')
+do_search('class="FIREWALL_ACCESS_DENY" groupby:srcip %s nobatch:1 timeout:900' % (time_span), 'Firewall Deny', 'srcip')
+do_search('class="FIREWALL_ACCESS_DENY" groupby:dstip %s nobatch:1 timeout:900' % (time_span), 'Firewall Deny', 'dstip')
+do_search('class=BRO_CONN +BRO_CONN.dstport=53 -BRO_CONN.service=dns groupby:srcip %s nobatch:1 timeout:900' % (time_span), 'Port 53 not DNS', 'srcip')
+do_search('class=BRO_CONN +BRO_CONN.dstport=53 -BRO_CONN.service=dns groupby:dstip %s nobatch:1 timeout:900' % (time_span), 'Port 53 not DNS', 'dstip')
+do_search('class=BRO_CONN +BRO_CONN.dstport=80 -BRO_CONN.service=http groupby:srcip %s nobatch:1 timeout:900' % (time_span), 'Port 80 not HTTP', 'srcip')
+do_search('class=BRO_CONN +BRO_CONN.dstport=80 -BRO_CONN.service=http groupby:dstip %s nobatch:1 timeout:900' % (time_span), 'Port 80 not HTTP', 'dstip')
+do_search('class=BRO_CONN +BRO_CONN.dstport=443 -BRO_CONN.service=ssl groupby:srcip %s nobatch:1 timeout:900' % (time_span), 'Port 443 not HTTPS', 'srcip')
+do_search('class=BRO_CONN +BRO_CONN.dstport=443 -BRO_CONN.service=ssl groupby:dstip %s nobatch:1 timeout:900' % (time_span), 'Port 443 not HTTPS', 'dstip')
+do_search('class=BRO_INTEL "intel" groupby:srcip %s nobatch:1 timeout:900' % (time_span), 'Intel hits', 'srcip')
+do_search('class=BRO_INTEL "intel" groupby:dstip %s nobatch:1 timeout:900' % (time_span), 'Intel hits', 'dstip')
+do_search('class=BRO_TUNNEL "Tunnel" groupby:srcip %s nobatch:1 timeout:900' % (time_span), 'IP Tunnels', 'srcip')
+do_search('class=BRO_TUNNEL "Tunnel" groupby:dstip %s nobatch:1 timeout:900' % (time_span), 'IP Tunnels', 'dstip')
+do_search('class=BRO_RADIUS "-" groupby:remote_ip -"127.0.0.1" %s nobatch:1 timeout:900' % (time_span), 'RADIUS remote IP', 'remote_ip')
+do_search('class=SNORT groupby:srcip -"SURICATA" -"PE EXE or DLL" -"Vulnerable Java" -"TeamViewer" %s nobatch:1 timeout:900' % (time_span), 'IDS Alerts', 'srcip')
+do_search('class=SNORT groupby:dstip -"SURICATA" -"PE EXE or DLL" -"Vulnerable Java" -"TeamViewer" %s nobatch:1 timeout:900' % (time_span), 'IDS Alerts', 'dstip')
+do_search('class=BRO_IRC groupby:srcip %s nobatch:1 timeout:900' % (time_span), 'IRC', 'srcip')
+do_search('class=BRO_IRC groupby:dstip %s nobatch:1 timeout:900' % (time_span), 'IRC', 'dstip')
+do_search('class=BRO_NOTICE notice_type="ExploitKit::SuspiciousDownloads nobatch:1 timeout:900" groupby:srcip %s' % (time_span), 'Exploit Kit', 'srcip')
+do_search('class=BRO_NOTICE notice_type="ExploitKit::SuspiciousDownloads nobatch:1 timeout:900" groupby:dstip %s' % (time_span), 'Exploit Kit', 'dstip')
+do_search('class=BRO_NOTICE (notice_type="DRC::Large_Outgoing_Tx" OR notice_type="DRC::Very_Large_Outgoing_Tx") groupby:srcip %s nobatch:1 timeout:900' % (time_span), 'Large Upload', 'srcip')
+do_search('class=BRO_NOTICE (notice_type="DRC::Large_Outgoing_Tx" OR notice_type="DRC::Very_Large_Outgoing_Tx") groupby:dstip %s nobatch:1 timeout:900' % (time_span), 'Large Upload', 'dstip')
+do_search('(WINDOWS.eventid=4625 OR WINDOWS.eventid=4771 OR WINDOWS.eventid=529 OR WINDOWS.eventid=531 OR WINDOWS.eventid=532 OR WINDOWS.eventid=533 OR WINDOWS.eventid=534 OR WINDOWS.eventid=535 OR WINDOWS.eventid= 539) groupby:WINDOWS.srcip %s nobatch:1 timeout:900' % (time_span), 'Windows Failed Logons', 'srcip')
 
 
-# time span to use for all searches
 time_span = 'start:%22' + yesterday + '%22 end:%22' + now + '%22'
 # track IPs we are correlating so we do not correlate them more than once
 IPs = []
-# store correations so we can later determine if we want to report on them
+# store correations so we can later determin if we want to report on them
 crls = []
 with open(search_results_fname, 'r') as f:
     lines = f.readlines()
@@ -145,18 +143,20 @@ with open(correlated_fname, 'w') as correlated:
 # create email table rows
 with open(correlated_fname, 'r') as f:
     lines = f.readlines()
-# keep track of the current IP we are working on so that we can build our email heirarchy
 temp = ''
 for line in lines:
     IP = line.split('\t')
     if IP[2] not in ignore_ips:
-        # lets build our ELSA email search links depending on search the IP was found in
         if IP[2] != temp:
             html += '<tr><td bgcolor="#B8B8B8" colspan="3"><b>' + IP[2] + '</b> - [<a href="' + elsa_uri + 'groupby=program ' + IP[2] + ' ' + time_span + '">groupby:program</a>] [<a href="' + elsa_uri + 'groupby=class ' + IP[2] + ' ' + time_span + '">groupby:class</a>]</td></tr>'
         if IP[0] == 'SSH over non-standard port' and IP[1] == 'srcip':
             html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_SSH %22-%22 -BRO_SSH.dstport=22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'SSH over non-standard port' and IP[1] == 'dstip':
             html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_SSH %22-%22 -BRO_SSH.dstport=22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+        elif IP[0] == 'Firewall Deny' and IP[1] == 'srcip':
+            html += '<tr><td><a href="' + elsa_uri + 'class=FIREWALL_ACCESS_DENY groupby=dstip ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+        elif IP[0] == 'Firewall Deny' and IP[1] == 'dstip':
+            html += '<tr><td><a href="' + elsa_uri + 'class=FIREWALL_ACCESS_DENY groupby=srcip ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Port 53 not DNS' and IP[1] == 'srcip':
             html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_CONN +BRO_CONN.dstport=53 -BRO_CONN.service=dns ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Port 53 not DNS' and IP[1] == 'dstip':
@@ -170,7 +170,7 @@ for line in lines:
         elif IP[0] == 'Port 443 not HTTPS' and IP[1] == 'dstip':
             html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_CONN +BRO_CONN.dstport=443 -BRO_CONN.service=ssl ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Intel hits' and IP[1] == 'srcip':
-            html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_INTEL %22intel%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=indicator_type class=BRO_INTEL %22intel%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Intel hits' and IP[1] == 'dstip':
             html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_INTEL %22intel%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'IP Tunnels' and IP[1] == 'srcip':
@@ -179,7 +179,6 @@ for line in lines:
             html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_TUNNEL %22Tunnel%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'RADIUS remote IP' and IP[1] == 'remote_ip':
             html += '<tr><td><a href="' + elsa_uri + 'class=BRO_RADIUS %22-%22 groupby:remote_ip -%22127.0.0.1%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
-        elif IP[0] == 'Correlated alerts' and IP[1] == 'srcip':
             html += '<tr><td><a href="' + elsa_uri + 'groupby=sub_msg class=BRO_NOTICE %22-%22 notice_type=%22CrlALERTs::Correlated_Alerts%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'IDS Alerts' and IP[1] == 'srcip':
             html += '<tr><td><a href="' + elsa_uri + 'groupby=sig_msg class=SNORT %22-%22 ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
@@ -197,6 +196,8 @@ for line in lines:
             html += '<tr><td><a href="' + elsa_uri + 'groupby=dstip class=BRO_NOTICE %22-%22 (notice_type=%22DRC::Large_Outgoing_Tx%22 OR notice_type=%22DRC::Very_Large_Outgoing_Tx%22) ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         elif IP[0] == 'Large Upload' and IP[1] == 'dstip':
             html += '<tr><td><a href="' + elsa_uri + 'groupby=srcip class=BRO_NOTICE %22-%22 (notice_type=%22DRC::Large_Outgoing_Tx%22 OR notice_type=%22DRC::Very_Large_Outgoing_Tx%22) ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
+        elif IP[0] == 'Windows Failed Logons' and IP[1] == 'srcip':
+            html += '<tr><td><a href="' + elsa_uri + 'groupby=user (WINDOWS.eventid=4625 OR WINDOWS.eventid=4771 OR WINDOWS.eventid=529 OR WINDOWS.eventid=531 OR WINDOWS.eventid=532 OR WINDOWS.eventid=533 OR WINDOWS.eventid=534 OR WINDOWS.eventid=535 OR WINDOWS.eventid= 539) ' + IP[2] + ' ' + time_span + '">' + IP[0] + '</a></td><td>' + IP[1] + '</td><td>' + IP[3] + '</td></tr>'
         else:
             html += '<tr><td>' + IP[0] + '</td><td>' + IP[1] + '</td><td>' + IP[3] + '</td>'
     temp = IP[2]
@@ -207,7 +208,6 @@ html += """\
   </body>
 </html>
 """
-
 # Record the MIME types of both parts - text/plain and text/html.
 #part1 = MIMEText(text, 'plain')
 part2 = MIMEText(html, 'html')
@@ -217,7 +217,7 @@ part2 = MIMEText(html, 'html')
 #msg.attach(part1)
 msg.attach(part2)
 # Send the message via local SMTP server.
-s = smtplib.SMTP('smtp.company.com')
+s = smtplib.SMTP('email.server.com')
 s.ehlo()
 # sendmail function takes 3 arguments: sender's address, recipient's address
 # and message to send - here it is sent as one string.
