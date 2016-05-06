@@ -90,7 +90,7 @@ if __name__ == "__main__":
             \_> For example: "127.0.0.1 BRO_HTTP.uri=""/test/testing/"""
         Note that an Elsa API search will search the entire available time range by default.
             \_> Therefore use the start and end options to specify the query window.
-            \_> If no start is specified, a start date of now minus 1 day is assumed.
+            \_> If no start is specified, a start date of yesterday at midnight is assumed.
             \_> If no end date is set, then an end date of now is assumed.
         ''')
     parser.add_option('-a', '--apikey',
