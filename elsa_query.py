@@ -87,7 +87,7 @@ if __name__ == "__main__":
         -v, --verbose : Print verbose results
 
         When running this on Windows you will need to escape quotes in the Elsa search string with a quote.
-            |_> For example: "127.0.0.1 BRO_HTTP.uri=""/test/testing/"""
+            \_> For example: "127.0.0.1 BRO_HTTP.uri=""/test/testing/"""
         Note that an Elsa API search will search the entire available time range by default.
             \_> Therefore use the start and end options to specify the query window.
             \_> If no start is specified, a start date of now minus 1 day is assumed.
