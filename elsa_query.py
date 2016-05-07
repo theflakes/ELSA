@@ -48,17 +48,20 @@ def read_conf():
 
 def print_results(output):
     output = json.loads(output)
-    if 'groupby' in output:
-        col_headers = "{:^35} {:<20}".format('Group', 'Value')
-        print(col_headers)
-        for row in output['results'].values()[0]:
-            aligned_row = "{:>35} {:<20}".format(row['_groupby'], row['_count'])
-            print(aligned_row)
+    if output.get('results'):
+        if 'groupby' in output:
+            col_headers = "{:^35} {:<20}".format('Group', 'Value')
+            print(col_headers)
+            for row in output['results'].values()[0]:
+                aligned_row = "{:>35} {:<20}".format(row['_groupby'], row['_count'])
+                print(aligned_row)
+        else:
+            for msg in output['results']:
+                log = json.dumps(msg['msg'], ensure_ascii=True)
+                log = log.replace("\\\\\\\\", "\\")
+                print(log)
     else:
-        for msg in output['results']:
-            log = json.dumps(msg['msg'], ensure_ascii=True)
-            log = log.replace("\\\\\\\\", "\\")
-            print(log)
+        print('\nThe search did not return any records.')
 
 
 if __name__ == "__main__":
@@ -130,7 +133,7 @@ if __name__ == "__main__":
                  ' end:' + '"' + options.elsa_end + '"' + \
                  ' limit:' + options.elsa_limit
     query_results = query_elsa(elsa_user, elsa_apikey, elsa_ip, elsa_query)
-    print('Query submitted to Elsa: ', elsa_query)
+    print('\nQuery submitted to Elsa: ', elsa_query)
     if options.verbose:
         print(json.dumps(query_results.json(), indent=2))
         print('HTTP Status Code: ', query_results.status_code)
