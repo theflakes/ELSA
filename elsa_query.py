@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
         -a, --apikey  : Elsa API key
                         If not specified then read it from the elsa_query.ini file
-                        If this option is used then specify options -i and -u or accept the their defaults.
+                        If this option is used then specify options -i and -u or accept the defaults.
         -e, --end     : End date in the form of '2016-04-30 16:47:53'
                         Default is now
         -i, --ip      : Elsa server IP
