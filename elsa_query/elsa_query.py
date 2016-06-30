@@ -105,11 +105,11 @@ def build_table(child, depth, timestamp, site, uri, socket, method,
 
 # Recursive procedure to sift through a list of all BRO_HTTP logs to associate
 # referers to the sites that did the refering.
-def find_referers(site, depth, elsa_server):
+def find_referers(site, site_date, depth, elsa_server):
     global data
     depth += 1
     for refered in data:
-        if site in refered['referer']:
+        if site in refered['referer'] and site_date <= refered['timestamp']:
             data.remove(refered)
             build_table(True,
                         depth,
@@ -125,7 +125,7 @@ def find_referers(site, depth, elsa_server):
                         refered['msg'],
                         elsa_server)
             if not (refered['site'] == "-"):
-                find_referers(refered['site'] + refered['uri'], depth, elsa_server)
+                find_referers(refered['site'] + refered['uri'], refered['timestamp'], depth, elsa_server)
 
 
 def build_referer_view(elsa_server):
@@ -147,7 +147,7 @@ def build_referer_view(elsa_server):
                     site['msg'],
                     elsa_server)
         if not (site['site'] == "-"):
-            find_referers(site['site'] + site['uri'], 0, elsa_server)
+            find_referers(site['site'] + site['uri'], site['timestamp'], 0, elsa_server)
         doc.stag('br')
         doc.stag('br')
     doc.asis("""
@@ -172,7 +172,7 @@ def save_referer_report():
     filename = str(sec.microsecond) + '-ref_view.html'
     with open(filename, 'w') as f:
         f.write(doc.getvalue())
-    print('\nResults saved to file: ', filename, '\n')
+        print('\nResults saved to file: ', filename, '\n')
 
 
 def sift_logs(q_results):
@@ -237,7 +237,7 @@ def build_query(query, start, end, limit, http):
         if not ('class:BRO_HTTP' in query or 'class=BRO_HTTP' in query):
             query += ' class:BRO_HTTP '
         query += ' orderby:timestamp'
-    print('\n\nQuery submitted to ELSA: ', query, '\n\n')
+        print('\n\nQuery submitted to ELSA: ', query, '\n\n')
     return query
 
 
