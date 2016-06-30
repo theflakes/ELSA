@@ -251,9 +251,9 @@ def handle_output(query, results, verbose, print_it):
 
 
 if __name__ == "__main__":
-    now = time.strftime("%Y-%m-%d %H:%M:%S")
-    temp = datetime.date.today() - datetime.timedelta(1)
-    yesterday = temp.strftime("%Y-%m-%d %H:%M:00")
+    now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    temp = datetime.datetime.utcnow() - datetime.timedelta(1)
+    yesterday = temp.strftime("%Y-%m-%d %H:%M:%S")
     parser = optparse.OptionParser(usage='''
         Usage: elsa_query.py --query "127.0.0.1 dstport:80 groupby:dstip" --print -l 1000 -p
 
