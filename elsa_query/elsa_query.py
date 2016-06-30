@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 """
     Author: Brian Kellogg
     Elsa API query
