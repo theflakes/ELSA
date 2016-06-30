@@ -8,7 +8,7 @@ sudo pip install yattag
 sudo pip install configparser
 
 Usage:
-        Usage: elsa_query.py --query "127.0.0.1 dstport:80 groupby:dstip" --print -l 1000 -p
+        elsa_query.py --query "127.0.0.1 dstport:80 groupby:dstip" --print -l 1000 -p
 
         -a, --apikey  : Elsa API key
                         If not specified then read it from the elsa_query.ini file
