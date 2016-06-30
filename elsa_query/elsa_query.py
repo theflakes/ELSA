@@ -237,7 +237,7 @@ def build_query(query, start, end, limit, http):
         if not ('class:BRO_HTTP' in query or 'class=BRO_HTTP' in query):
             query += ' class:BRO_HTTP '
         query += ' orderby:timestamp'
-        print('\n\nQuery submitted to ELSA: ', query, '\n\n')
+    print('\n\nQuery submitted to ELSA: ', query, '\n\n')
     return query
 
 
