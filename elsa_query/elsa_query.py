@@ -172,7 +172,7 @@ def save_referer_report():
     filename = str(sec.microsecond) + '-ref_view.html'
     with open(filename, 'w') as f:
         f.write(doc.getvalue())
-    print('Results saved to file: ', filename)
+    print('\nResults saved to file: ', filename, '\n')
 
 
 def sift_logs(q_results):
@@ -237,11 +237,11 @@ def build_query(query, start, end, limit, http):
         if not ('class:BRO_HTTP' in query or 'class=BRO_HTTP' in query):
             query += ' class:BRO_HTTP '
         query += ' orderby:timestamp'
+    print('\n\nQuery submitted to ELSA: ', query, '\n\n')
     return query
 
 
 def handle_output(query, results, verbose, print_it):
-    print('\nQuery submitted to Elsa: ', query)
     if verbose:
         print(json.dumps(results.json(), indent=2))
         print('HTTP Status Code: ', results.status_code)
