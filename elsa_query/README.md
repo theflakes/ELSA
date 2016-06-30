@@ -1,13 +1,14 @@
-EXAMPLE:
+**EXAMPLE:**
 elsa_query.py -q "1.1.1.1" -w -l 1000
+- query ELSA for all BRO_HTTP logs with 1.1.1.1 as the src or dst, return 1000 logs.  Then analyze the BRO_HTTP logs and build a html report.
 
 
-Required for SecurityOnion analysis VM:
-sudo apt-get install python-pip
-sudo pip install yattag
-sudo pip install configparser
+**Required for SecurityOnion analysis VM:**
+- sudo apt-get install python-pip
+- sudo pip install yattag
+- sudo pip install configparser
 
-Usage:
+**Usage:**
         elsa_query.py --query "127.0.0.1 dstport:80 groupby:dstip" --print -l 1000 -p
 
         -a, --apikey  : Elsa API key
