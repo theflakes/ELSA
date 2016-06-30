@@ -125,7 +125,10 @@ def find_referers(site, site_date, depth, elsa_server):
                         refered['msg'],
                         elsa_server)
             if not (refered['site'] == "-"):
-                find_referers(refered['site'] + refered['uri'], refered['timestamp'], depth, elsa_server)
+                if refered['uri'] == '-':
+                    find_referers(refered['site'], refered['timestamp'], depth, elsa_server)
+                else:
+                    find_referers(refered['site'] + refered['uri'], refered['timestamp'], depth, elsa_server)
 
 
 def build_referer_view(elsa_server):
@@ -147,7 +150,10 @@ def build_referer_view(elsa_server):
                     site['msg'],
                     elsa_server)
         if not (site['site'] == "-"):
-            find_referers(site['site'] + site['uri'], site['timestamp'], 0, elsa_server)
+            if site['uri'] == '-':
+                find_referers(site['site'], site['timestamp'], 0, elsa_server)
+            else:
+                find_referers(site['site'] + site['uri'], site['timestamp'], 0, elsa_server)
         doc.stag('br')
         doc.stag('br')
     doc.asis("""
@@ -241,7 +247,7 @@ def build_query(query, start, end, limit, http):
     return query
 
 
-def handle_output(query, results, verbose, print_it):
+def handle_output(results, verbose, print_it):
     if verbose:
         print(json.dumps(results.json(), indent=2))
         print('HTTP Status Code: ', results.status_code)
@@ -322,8 +328,9 @@ if __name__ == "__main__":
     query_results = query_elsa(elsa_user, elsa_apikey, elsa_ip, elsa_query)
     if options.elsa_http:
         sift_logs(query_results)
+        data = sorted(data, key=lambda k: k['timestamp'])
         build_referer_view(elsa_ip)
         save_referer_report()
     else:
-        handle_output(elsa_query, query_results, options.verbose, options.print_it)
+        handle_output(query_results, options.verbose, options.print_it)
     query_results = None
