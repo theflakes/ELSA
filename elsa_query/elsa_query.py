@@ -23,6 +23,7 @@ from configparser import ConfigParser
 
 # Global variables
 data = []
+done = {}
 doc, tag, text = Doc().tagtext()
 doc.asis('<!DOCTYPE html>')
 doc.asis('<html>')
@@ -61,12 +62,10 @@ def print_url(child, depth, url, mtype):
         text(url)
 
 
-def build_table(child, depth, timestamp, site, uri, socket, method,
-                status_code, mime_type, user_agent, length, msg, elsa_server):
-    cid = msg.split('|')[1]
-    url = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(float(timestamp))) + ':  ' + site + uri
+def build_table(child, depth, site, elsa_server):
+    url = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(float(site['timestamp']))) + ':  ' + site['site'] + site['uri']
     with tag('button', klass='accordion'):
-        print_url(child, depth, url, mime_type)
+        print_url(child, depth, url, site['mime_type'])
     with tag('div', klass='panel'):
         with tag('table'):
             with tag('tr'):
@@ -86,76 +85,70 @@ def build_table(child, depth, timestamp, site, uri, socket, method,
                     text('CID')
             with tag('tr'):
                 with tag('td'):
-                    text(socket)
+                    text(site['srcip'] + ':' + site['srcport'] + ' <-> ' + site['dstip'] + ':' + site['dstport'])
                 with tag('td'):
-                    text(method)
+                    text(site['method'])
                 with tag('td'):
-                    text(status_code)
+                    text(site['status_code'])
                 with tag('td'):
-                    text(mime_type)
+                    text(site['mime_type'])
                 with tag('td'):
                     with tag('div', klass='left'):
-                        text(user_agent)
+                        text(site['user_agent'])
                 with tag('td'):
-                    text(length)
+                    text(site['content_length'])
                 with tag('td'):
-                    with tag('a', href='https://' + elsa_server + '/elsa-query/?query_string=' + cid, target='_blank'):
-                        text(cid)
+                    with tag('a', href='https://' + elsa_server + '/elsa-query/?query_string=' + site['cid'], target='_blank'):
+                        text(site['cid'])
+
+
+# Was a URL visited more than once
+# If so then we need to be careful how refered sites are assigned to the correct referers
+def find_dup_url(site, site_date):
+    for refered in data:
+        if site_date < refered['timestamp']:
+            if refered['uri'] == '-':
+                url = refered['site']
+            else:
+                url = 'http://' + refered['site'] + refered['uri']
+            if site == url:
+                return refered['timestamp']
+    return 'none'
 
 
 # Recursive procedure to sift through a list of all BRO_HTTP logs to associate
 # referers to the sites that did the refering.
 def find_referers(site, site_date, depth, elsa_server):
-    global data
+    global data, done
     depth += 1
+    next_visit = find_dup_url(site, site_date)
     for refered in data:
-        if site in refered['referer'] and site_date <= refered['timestamp']:
-            data.remove(refered)
-            build_table(True,
-                        depth,
-                        refered['timestamp'],
-                        refered['site'],
-                        refered['uri'],
-                        refered['srcip'] + ':' + refered['srcport'] + ' <> ' + refered['dstip'] + ':' + refered['dstport'],
-                        refered['method'],
-                        refered['status_code'],
-                        refered['mime_type'],
-                        refered['user_agent'],
-                        refered['content_length'],
-                        refered['msg'],
-                        elsa_server)
-            if not (refered['site'] == "-"):
-                if refered['uri'] == '-':
-                    find_referers(refered['site'], refered['timestamp'], depth, elsa_server)
-                else:
-                    find_referers(refered['site'] + refered['uri'], refered['timestamp'], depth, elsa_server)
+        if refered['index'] not in done:
+            if site == refered['referer'] and site_date <= refered['timestamp']:
+                if next_visit == 'none' or refered['timestamp'] < next_visit:
+                    done[refered['index']] = refered['cid']
+                    build_table(True, depth, refered, elsa_server)
+                    if not (refered['site'] == "-"):
+                        if refered['uri'] == '-':
+                            find_referers('http://' + refered['site'], refered['timestamp'], depth, elsa_server)
+                        else:
+                            find_referers('http://' + refered['site'] + refered['uri'], refered['timestamp'], depth, elsa_server)
 
 
 def build_referer_view(elsa_server):
-    global data
+    global data, done
     doc.asis('<body>')
     for site in data:
-        data.remove(site)
-        build_table(False,
-                    0,
-                    site['timestamp'],
-                    site['site'],
-                    site['uri'],
-                    site['srcip'] + ':' + site['srcport'] + ' <-> ' + site['dstip'] + ':' + site['dstport'],
-                    site['method'],
-                    site['status_code'],
-                    site['mime_type'],
-                    site['user_agent'],
-                    site['content_length'],
-                    site['msg'],
-                    elsa_server)
-        if not (site['site'] == "-"):
-            if site['uri'] == '-':
-                find_referers(site['site'], site['timestamp'], 0, elsa_server)
-            else:
-                find_referers(site['site'] + site['uri'], site['timestamp'], 0, elsa_server)
-        doc.stag('br')
-        doc.stag('br')
+        if site['index'] not in done:
+            done[site['index']] = site['cid']
+            build_table(False, 0, site, elsa_server)
+            if not (site['site'] == "-"):
+                if site['uri'] == '-':
+                    find_referers('http://' + site['site'], site['timestamp'], 0, elsa_server)
+                else:
+                    find_referers('http://' + site['site'] + site['uri'], site['timestamp'], 0, elsa_server)
+            doc.stag('br')
+            doc.stag('br')
     doc.asis("""
     <script type="text/javascript">
     var acc = document.getElementsByClassName("accordion");
@@ -196,6 +189,7 @@ def sift_logs(q_results):
         site['timestamp'] = result['timestamp']
         site['node'] = result['node']
         site['msg'] = result['msg']
+        site['cid'] = result['msg'].split('|')[1]
         for fields in result['_fields']:
             found = False
             for key, value in fields.iteritems():
@@ -328,7 +322,6 @@ if __name__ == "__main__":
     query_results = query_elsa(elsa_user, elsa_apikey, elsa_ip, elsa_query)
     if options.elsa_http:
         sift_logs(query_results)
-        data = sorted(data, key=lambda k: k['timestamp'])
         build_referer_view(elsa_ip)
         save_referer_report()
     else:
