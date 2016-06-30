@@ -270,7 +270,7 @@ if __name__ == "__main__":
         -p, --print   : Print search results to stdout
         -q, --query   : Elsa query string
         -s, --start   : Start date in the form of '2016-04-30 16:47:53'
-                        Default is yesterday at midnight
+                        Default is 24 hours ago
         -u, --user    : Elsa user
                         Default is 'elsa'
         -v, --verbose : Print verbose results
@@ -281,7 +281,7 @@ if __name__ == "__main__":
             \_> For example: "127.0.0.1 BRO_HTTP.uri=""/test/testing/"""
         Note that an Elsa API search will search the entire available time range by default.
             \_> Therefore use the start and end options to specify the query window.
-            \_> If no start is specified, a start date of yesterday at midnight is assumed.
+            \_> If no start is specified, a start date of 24 hours ago is assumed.
             \_> If no end date is set, then an end date of now is assumed.
         ''')
     parser.add_option('-a', '--apikey',
