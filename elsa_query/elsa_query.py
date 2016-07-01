@@ -19,6 +19,7 @@ from requests import Request, Session
 import json
 import datetime
 from configparser import ConfigParser
+import urllib
 
 
 # Global variables
@@ -28,8 +29,10 @@ doc, tag, text = Doc().tagtext()
 doc.asis('<!DOCTYPE html>')
 doc.asis('<html>')
 with tag('head'):
-    doc.asis('<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>')
-    doc.asis('<script type="text/javascript" src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js" integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>')
+    doc.asis('<script type="text/javascript" '
+             'src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>')
+    doc.asis('<script type="text/javascript" src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js" '
+             'integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>')
     doc.asis('<link rel="stylesheet" type="text/css" href="style.css">')
 
 
@@ -54,7 +57,10 @@ def query_elsa(user, apikey, ip, query):
 def print_url(child, depth, url, mtype):
     mime = str(mtype)
     if mime not in ['-']:
-        mime = mime.split('/')[1]
+        if 'video/' in mime or 'audio/' in mime:
+            mime = mime.split('/')[0]
+        else:
+            mime = mime.split('/')[1]
     with tag('div', klass=mime):
         if child:
             doc.asis('&nbsp;' * depth * 5)
@@ -63,7 +69,8 @@ def print_url(child, depth, url, mtype):
 
 
 def build_table(child, depth, site, elsa_server):
-    url = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(float(site['timestamp']))) + ':  ' + site['site'] + site['uri']
+    url = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(float(site['timestamp']))) \
+          + ':  ' + site['site'] + site['uri']
     with tag('button', klass='accordion'):
         print_url(child, depth, url, site['mime_type'])
     with tag('div', klass='panel'):
@@ -98,7 +105,8 @@ def build_table(child, depth, site, elsa_server):
                 with tag('td'):
                     text(site['content_length'])
                 with tag('td'):
-                    with tag('a', href='https://' + elsa_server + '/elsa-query/?query_string=' + site['cid'], target='_blank'):
+                    with tag('a', href='https://' + elsa_server + '/elsa-query/?query_string=' + site['cid'],
+                             target='_blank'):
                         text(site['cid'])
 
 
@@ -130,9 +138,11 @@ def find_referers(site, site_date, depth, elsa_server):
                     build_table(True, depth, refered, elsa_server)
                     if not (refered['site'] == "-"):
                         if refered['uri'] == '-':
-                            find_referers('http://' + refered['site'], refered['timestamp'], depth, elsa_server)
+                            find_referers('http://' + refered['site'], refered['timestamp'],
+                                          depth, elsa_server)
                         else:
-                            find_referers('http://' + refered['site'] + refered['uri'], refered['timestamp'], depth, elsa_server)
+                            find_referers('http://' + refered['site'] + refered['uri'],
+                                          refered['timestamp'], depth, elsa_server)
 
 
 def build_referer_view(elsa_server):
@@ -194,7 +204,10 @@ def sift_logs(q_results):
             found = False
             for key, value in fields.iteritems():
                 if found and ('value' in key):
-                    site[val] = value
+                    if val == 'site' or val == 'referer':
+                        site[val] = urllib.unquote(value)
+                    else:
+                        site[val] = value
                     found = False
                 if any(string in value for string in strings):
                     val = value
