@@ -73,4 +73,7 @@ div.x-shockwave-flash {
 div.zip, div.x-compressed, div.x-gzip, div.x-stuffit, div.sit, div.x-tar, div.x-compressed, div.gnutar, div.x-zip-compressed {
     color: red;
 }
+div.audio, div.video {
+    color: DarkSlateBlue;
+}
 </style>
