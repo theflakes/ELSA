@@ -59,13 +59,13 @@ div.left {
     text-align: left;
 }
 div.java, div.java-byte-code, div.x-java-class {
-    color: brown;
+    color: Orchid;
 }
-div.octetstream, div.mac-binary, div.octet-stream, div.x-binary, div.x-macbinary, div.hta {
-    color: green;
+div.x-dosexec, div.octetstream, div.mac-binary, div.octet-stream, div.x-binary, div.x-macbinary, div.hta {
+    color: Orange;
 }
 div.pdf, div.msword, div.spowerpoint, div.vnd.ms-powerpoint, div.powerpoint, div.x-mspowerpoint, div.msword, div.richtext, div.excel, div.x-excel, div.x-msexcel, div.vnd.ms-excel {
-    color: DarkGreen ;
+    color: DeepPink ;
 }
 div.x-shockwave-flash {
     color MediumVioletRed;
@@ -74,6 +74,6 @@ div.zip, div.x-compressed, div.x-gzip, div.x-stuffit, div.sit, div.x-tar, div.x-
     color: red;
 }
 div.audio, div.video {
-    color: DarkSlateBlue;
+    color: DarkTurquoise;
 }
 </style>
