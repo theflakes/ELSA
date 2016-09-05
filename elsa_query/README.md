@@ -50,7 +50,7 @@ elsa_query.py -zpq "class=BRO_HTTP" -l 999 | cut -d'|' -f4,6,9,10,13,16 | sort |
 **BRO_HTTP analysis results:**
 - "elsa_query.py -wq "class:bro_http" -l 9999"
 - Creates HTML file in current working directory.
-- Mime types of interested will be color coded.
+- Mime types of interest will be color coded.
 - Website visits will be grouped by referer relationships in a tree format.
 - Each entry can be expanded to show further information.
 - The BRO CID is clickable so that you can initiate an ELSA search for records associated with that BRO CON ID.
