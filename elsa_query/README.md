@@ -37,3 +37,7 @@ elsa_query.py -q "1.1.1.1" -w -l 1000
             \_> Therefore use the start and end options to specify the query window.
             \_> If no start is specified, a start date of yesterday at midnight is assumed.
             \_> If no end date is set, then an end date of now is assumed.
+
+
+**Print the search results to standard out and data stack:**
+./elsa_query.py -p -q "class=BRO_HTTP" -l 9999 | cut -d'|' -f3,5,8,9,12,15,27 | sort | uniq -c | sort -r -t'|' -k1
