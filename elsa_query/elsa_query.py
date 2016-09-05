@@ -27,14 +27,6 @@ import urllib
 data = []
 done = {}
 doc, tag, text = Doc().tagtext()
-doc.asis('<!DOCTYPE html>')
-doc.asis('<html>')
-with tag('head'):
-    doc.asis('<script type="text/javascript" '
-             'src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>')
-    doc.asis('<script type="text/javascript" src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js" '
-             'integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>')
-    doc.asis('<link rel="stylesheet" type="text/css" href="style.css">')
 
 
 def query_elsa(user, apikey, ip, query):
@@ -148,6 +140,14 @@ def find_referers(site, site_date, depth, elsa_server):
 
 def build_referer_view(elsa_server):
     global data, done
+    doc.asis('<!DOCTYPE html>')
+    doc.asis('<html>')
+    with tag('head'):
+        doc.asis('<script type="text/javascript" '
+                'src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>')
+        doc.asis('<script type="text/javascript" src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js" '
+                'integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>')
+        doc.asis('<link rel="stylesheet" type="text/css" href="style.css">')
     doc.asis('<body>')
     for site in data:
         if site['index'] not in done:
