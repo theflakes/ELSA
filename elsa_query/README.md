@@ -30,6 +30,7 @@ elsa_query.py -q "1.1.1.1" -w -l 1000
         -v, --verbose   : Print verbose results
         -w, --http      : Analyze BRO_HTTP logs
                           No need to include class:BRO_HTTP as it will be added by this script
+                          A HTML file will be created in the working directory showing referer relationships.
         -z, --suppress  : Suppress informational output
 
         When running this on Windows you will need to escape quotes in the Elsa search string with a quote.
@@ -44,3 +45,6 @@ elsa_query.py -q "1.1.1.1" -w -l 1000
 
 elsa_query -zpq "class=BRO_HTTP" -l 1000 | cut -d'|' -f3,5,8,9,12,15 | sort | uniq -c | sort -r -t'|' -k1 | column -s'|' -t
 ![alt tag](./dstack.png)
+
+
+***BRO_HTTP analysis results:***
