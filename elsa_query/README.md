@@ -29,8 +29,8 @@ elsa_query.py -q "1.1.1.1" -w -l 1000
                           Default is 'elsa'
         -v, --verbose   : Print verbose results
         -w, --http      : Analyze BRO_HTTP logs
-                          No need to include class:BRO_HTTP as it will be added by this script
                           A HTML file will be created in the working directory showing referer relationships.
+                          No need to include class:BRO_HTTP as it will be added by this script
         -z, --suppress  : Suppress informational output
 
         When running this on Windows you will need to escape quotes in the Elsa search string with a quote.
