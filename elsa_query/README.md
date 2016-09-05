@@ -44,7 +44,8 @@ elsa_query.py -q "1.1.1.1" -w -l 1000
 **Print the search results to standard out and data stack:**
 
 elsa_query -zpq "class=BRO_HTTP" -l 1000 | cut -d'|' -f3,5,8,9,12,15 | sort | uniq -c | sort -r -t'|' -k1 | column -s'|' -t
-![alt tag](./dstack.png)
+![alt tag](./pics/dstack.png)
 
 
 ***BRO_HTTP analysis results:***
+![alt tag](./pics/httpAnalysis.png)
