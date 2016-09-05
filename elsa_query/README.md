@@ -48,6 +48,7 @@ elsa_query.py -zpq "class=BRO_HTTP" -l 1000 | cut -d'|' -f3,5,8,9,12,15 | sort |
 
 **BRO_HTTP analysis results:**
 - "elsa_query.py -wq "class:bro_http" -l 9999"
+- Creates HTML file in current working directory.
 - Mime types of interested will be color coded.
 - Website visits will be grouped by referer relationships in a tree format.
 - Each entry can be expanded to show further information.
