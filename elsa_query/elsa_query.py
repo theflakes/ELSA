@@ -15,7 +15,7 @@ from yattag import Doc
 import optparse
 import time
 import hashlib
-from requests import Request, Session
+from requests import Request, Session, packages
 import json
 import datetime
 from configparser import ConfigParser
@@ -37,6 +37,7 @@ with tag('head'):
 
 
 def query_elsa(user, apikey, ip, query):
+    packages.urllib3.disable_warnings()
     url = 'https://' + ip + '/elsa-query/API/query'
     epoch = int(time.time())
     hash_it = hashlib.sha512()
@@ -49,8 +50,8 @@ def query_elsa(user, apikey, ip, query):
                         url,
                         data=[('permissions', payload), ('query_string', query)],
                         headers=header)
-    data = elsa_post.prepare()
-    results = s.send(data, verify=False)
+    postData = elsa_post.prepare()
+    results = s.send(postData, verify=False)
     return results
 
 
