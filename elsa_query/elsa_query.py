@@ -269,7 +269,7 @@ if __name__ == "__main__":
     now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     yesterday = (datetime.datetime.utcnow() - datetime.timedelta(1)).strftime("%Y-%m-%d %H:%M:%S")
     parser = optparse.OptionParser(usage='''
-        Usage: elsa_query.py --query "127.0.0.1 dstport:80 groupby:dstip" --print -l 1000 -p
+        Usage: elsa_query.py --query "127.0.0.1 dstport:80 groupby:dstip" --print -l 1000 -s "2016-03-21 00:00:00"
 
         -a, --apikey    : Elsa API key
                           If not specified then read it from the elsa_query.ini file
