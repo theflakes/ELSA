@@ -9,7 +9,7 @@ elsa_query.py -q "1.1.1.1" -w -l 1000
 - sudo pip install configparser
 
 **Usage:**
-        elsa_query.py --query "127.0.0.1 dstport:80 groupby:dstip" --print -l 1000
+         elsa_query.py --query "127.0.0.1 dstport:80 groupby:dstip" --print -l 1000 -p
 
         -a, --apikey    : Elsa API key
                           If not specified then read it from the elsa_query.ini file
@@ -37,8 +37,9 @@ elsa_query.py -q "1.1.1.1" -w -l 1000
             \_> For example: "127.0.0.1 BRO_HTTP.uri=""/test/testing/"""
         Note that an Elsa API search will search the entire available time range by default.
             \_> Therefore use the start and end options to specify the query window.
-            \_> If no start is specified, a start date of yesterday at midnight is assumed.
+            \_> If no start is specified, a start date of 24 hours ago is assumed.
             \_> If no end date is set, then an end date of now is assumed.
+        ELSA timestamps are printed as the first field followed by a '|' for the seperator.
 
 
 **Print the search results to standard out and data stack:**
