@@ -11,25 +11,26 @@ elsa_query.py -q "1.1.1.1" -w -l 1000
 **Usage:**
         elsa_query.py --query "127.0.0.1 dstport:80 groupby:dstip" --print -l 1000
 
-        -a, --apikey  : Elsa API key
-                        If not specified then read it from the elsa_query.ini file
-                        If this option is used then specify options -i and -u or accept the their defaults.
-        -e, --end     : End date in the form of '2016-04-30 16:47:53'
-                        Default is now
-        -i, --ip      : Elsa server IP
-                        Default is '127.0.0.1'
-        -l, --limit   : The number of records to return
-                        Do not use the limit directive in the search string
-                        Default is 100
-        -p, --print   : Print search results to stdout
-        -q, --query   : Elsa query string
-        -s, --start   : Start date in the form of '2016-04-30 16:47:53'
-                        Default is yesterday at midnight
-        -u, --user    : Elsa user
-                        Default is 'elsa'
-        -v, --verbose : Print verbose results
-        -w, --http    : Analyze BRO_HTTP logs
-                        No need to include class:BRO_HTTP as it will be added by this script
+        -a, --apikey    : Elsa API key
+                          If not specified then read it from the elsa_query.ini file
+                          If this option is used then specify options -i and -u or accept the their defaults.
+        -e, --end       : End date in the form of '2016-04-30 16:47:53'
+                          Default is now
+        -i, --ip        : Elsa server IP
+                          Default is '127.0.0.1'
+        -l, --limit     : The number of records to return
+                          Do not use the limit directive in the search string
+                          Default is 100
+        -p, --print     : Print search results to stdout
+        -q, --query     : Elsa query string
+        -s, --start     : Start date in the form of '2016-04-30 16:47:53'
+                          Default is 24 hours ago
+        -u, --user      : Elsa user
+                          Default is 'elsa'
+        -v, --verbose   : Print verbose results
+        -w, --http      : Analyze BRO_HTTP logs
+                          No need to include class:BRO_HTTP as it will be added by this script
+        -z, --suppress  : Suppress informational output
 
         When running this on Windows you will need to escape quotes in the Elsa search string with a quote.
             \_> For example: "127.0.0.1 BRO_HTTP.uri=""/test/testing/"""
