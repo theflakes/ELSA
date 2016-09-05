@@ -10,6 +10,7 @@
         apikey =
 """
 
+
 from __future__ import print_function
 from yattag import Doc
 import optparse
@@ -70,8 +71,7 @@ def print_url(child, depth, url, mtype):
 
 
 def build_table(child, depth, site, elsa_server):
-    url = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(float(site['timestamp']))) \
-          + ':  ' + site['site'] + site['uri']
+    url = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(float(site['timestamp']))) + ':  ' + site['site'] + site['uri']
     with tag('button', klass='accordion'):
         print_url(child, depth, url, site['mime_type'])
     with tag('div', klass='panel'):
@@ -93,7 +93,7 @@ def build_table(child, depth, site, elsa_server):
                     text('CID')
             with tag('tr'):
                 with tag('td'):
-                    text(site['srcip'] + ':' + site['srcport'] + ' <-> ' + site['dstip'] + ':' + site['dstport'])
+                    text(site['srcip'] + ':' + site['srcport'] + ' --> ' + site['dstip'] + ':' + site['dstport'])
                 with tag('td'):
                     text(site['method'])
                 with tag('td'):
@@ -238,12 +238,12 @@ def print_results(output):
             for msg in output['results']:
                 log = json.dumps(msg['msg'], ensure_ascii=True)
                 log = log.replace("\\\\\\\\", "\\")
-                print(log)
+                print(msg['timestamp'] + '|' + log.strip('"'))
     else:
         print('\nThe search did not return any records.')
 
 
-def build_query(query, start, end, limit, http):
+def build_query(query, start, end, limit, http, suppress):
     query += ' start:' + '"' + start + '"' + \
              ' end:' + '"' + end + '"' + \
              ' limit:' + limit
@@ -251,7 +251,8 @@ def build_query(query, start, end, limit, http):
         if not ('class:BRO_HTTP' in query or 'class=BRO_HTTP' in query):
             query += ' class:BRO_HTTP '
         query += ' orderby:timestamp'
-    print('\n\nQuery submitted to ELSA: ', query, '\n\n')
+    if not suppress:
+        print('\n\nQuery submitted to ELSA: ', query, '\n\n')
     return query
 
 
@@ -270,25 +271,27 @@ if __name__ == "__main__":
     parser = optparse.OptionParser(usage='''
         Usage: elsa_query.py --query "127.0.0.1 dstport:80 groupby:dstip" --print -l 1000 -p
 
-        -a, --apikey  : Elsa API key
-                        If not specified then read it from the elsa_query.ini file
-                        If this option is used then specify options -i and -u or accept the their defaults.
-        -e, --end     : End date in the form of '2016-04-30 16:47:53'
-                        Default is now
-        -i, --ip      : Elsa server IP
-                        Default is '127.0.0.1'
-        -l, --limit   : The number of records to return
-                        Do not use the limit directive in the search string
-                        Default is 100
-        -p, --print   : Print search results to stdout
-        -q, --query   : Elsa query string
-        -s, --start   : Start date in the form of '2016-04-30 16:47:53'
-                        Default is 24 hours ago
-        -u, --user    : Elsa user
-                        Default is 'elsa'
-        -v, --verbose : Print verbose results
-        -w, --http    : Analyze BRO_HTTP logs
-                        No need to include class:BRO_HTTP as it will be added by this script
+        -a, --apikey    : Elsa API key
+                          If not specified then read it from the elsa_query.ini file
+                          If this option is used then specify options -i and -u or accept the their defaults.
+        -e, --end       : End date in the form of '2016-04-30 16:47:53'
+                          Default is now
+        -i, --ip        : Elsa server IP
+                          Default is '127.0.0.1'
+        -l, --limit     : The number of records to return
+                          Do not use the limit directive in the search string
+                          Default is 100
+        -p, --print     : Print search results to stdout
+        -q, --query     : Elsa query string
+        -s, --start     : Start date in the form of '2016-04-30 16:47:53'
+                          Default is 24 hours ago
+        -u, --user      : Elsa user
+                          Default is 'elsa'
+        -v, --verbose   : Print verbose results
+        -w, --http      : Analyze BRO_HTTP logs
+                          A HTML file will be created in the working directory showing referer relationships.
+                          No need to include class:BRO_HTTP as it will be added by this script
+        -z, --suppress  : Suppress informational output
 
         When running this on Windows you will need to escape quotes in the Elsa search string with a quote.
             \_> For example: "127.0.0.1 BRO_HTTP.uri=""/test/testing/"""
@@ -322,6 +325,8 @@ if __name__ == "__main__":
                       dest='verbose', action='store_true')
     parser.add_option('-w', '--http',
                       dest='elsa_http', action='store_true')
+    parser.add_option('-z', '--suppress',
+                      dest='suppress_inf_output', action='store_true')
     (options, args) = parser.parse_args()
     if not options.elsa_query:
         parser.error('No query was specified!')
@@ -332,7 +337,8 @@ if __name__ == "__main__":
         elsa_ip = options.elsa_ip
         elsa_apikey = options.elsa_apikey
     elsa_query = build_query(options.elsa_query, options.elsa_start,
-                             options.elsa_end, options.elsa_limit, options.elsa_http)
+                             options.elsa_end, options.elsa_limit, 
+                             options.elsa_http, options.suppress_inf_output)
     query_results = query_elsa(elsa_user, elsa_apikey, elsa_ip, elsa_query)
     if options.elsa_http:
         sift_logs(query_results)
