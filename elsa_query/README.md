@@ -47,7 +47,7 @@ elsa_query -zpq "class=BRO_HTTP" -l 1000 | cut -d'|' -f3,5,8,9,12,15 | sort | un
 
 
 **BRO_HTTP analysis results:**
-- Mimetypes of interested will be color coded.
+- Mime types of interested will be color coded.
 - Website visits will be grouped by referer relationships in a tree format.
 - Each entry can be expanded to show further information.
 - The BRO CID is clickable so that you can initiate an ELSA search for that BRO CON.
