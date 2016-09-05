@@ -42,7 +42,7 @@ elsa_query.py -q "1.1.1.1" -w -l 1000
 
 
 **Print the search results to standard out and data stack:**
-elsa_query.py -zpq "class=BRO_HTTP" -l 1000 | cut -d'|' -f3,5,8,9,12,15 | sort | uniq -c | sort -t'|' -k1 | column -s'|' -t
+- elsa_query.py -zpq "class=BRO_HTTP" -l 1000 | cut -d'|' -f3,5,8,9,12,15 | sort | uniq -c | sort -t'|' -k1 | column -s'|' -t
 ![alt tag](./pics/dstack.png)
 
 
