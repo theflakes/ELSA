@@ -299,6 +299,7 @@ if __name__ == "__main__":
             \_> Therefore use the start and end options to specify the query window.
             \_> If no start is specified, a start date of 24 hours ago is assumed.
             \_> If no end date is set, then an end date of now is assumed.
+        ELSA timestamps are printed as the first field followed by a '|' for the seperator.
         ''')
     parser.add_option('-a', '--apikey',
                       dest='elsa_apikey', action='store', type='string')
