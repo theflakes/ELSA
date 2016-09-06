@@ -55,7 +55,6 @@ def print_url(child, depth, url, mtype):
             mime = mime.split('/')[0]
         else:
             mime = mime.split('/')[1]
-    if 
     with tag('div', klass=mime):
         if child:
             doc.asis('&nbsp;' * depth * 5)
