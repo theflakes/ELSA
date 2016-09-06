@@ -55,6 +55,7 @@ def print_url(child, depth, url, mtype):
             mime = mime.split('/')[0]
         else:
             mime = mime.split('/')[1]
+    if 
     with tag('div', klass=mime):
         if child:
             doc.asis('&nbsp;' * depth * 5)
@@ -63,7 +64,7 @@ def print_url(child, depth, url, mtype):
 
 
 def build_table(child, depth, site, elsa_server):
-    url = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(float(site['timestamp']))) + ':  ' + site['site'] + site['uri']
+    url = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(float(site['timestamp']))) + ':  ' + site['method'] + ' --> ' + site['site'] + site['uri']
     with tag('button', klass='accordion'):
         print_url(child, depth, url, site['mime_type'])
     with tag('div', klass='panel'):
