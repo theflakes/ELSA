@@ -254,9 +254,9 @@ def build_query(query, start, end, limit, http, suppress):
         if not ('class:BRO_HTTP' in query or 'class=BRO_HTTP' in query):
             parts[0] += ' class:BRO_HTTP '
         parts[0] += ' orderby:timestamp'
+    query = parts[0] + ' | ' + parts[1]
     if not suppress:
         print('\n\nQuery submitted to ELSA: ', query, '\n\n')
-    query = parts[0] + ' | ' + parts[1]
     return query
 
 
