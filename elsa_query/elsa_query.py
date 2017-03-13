@@ -244,15 +244,19 @@ def print_results(output):
 
 
 def build_query(query, start, end, limit, http, suppress):
-    query += ' start:' + '"' + start + '"' + \
+    # if a filter was used then split on first pipe
+    # we'll add it back in later after appending all the other stuff
+    parts = query.split('|', 1)
+    parts[0] += ' start:' + '"' + start + '"' + \
              ' end:' + '"' + end + '"' + \
              ' limit:' + limit
     if http:
         if not ('class:BRO_HTTP' in query or 'class=BRO_HTTP' in query):
-            query += ' class:BRO_HTTP '
-        query += ' orderby:timestamp'
+            parts[0] += ' class:BRO_HTTP '
+        parts[0] += ' orderby:timestamp'
     if not suppress:
         print('\n\nQuery submitted to ELSA: ', query, '\n\n')
+    query = parts[0] + ' | ' + parts[1]
     return query
 
 
